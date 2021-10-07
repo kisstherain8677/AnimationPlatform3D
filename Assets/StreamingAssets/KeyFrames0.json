@@ -1,0 +1,103 @@
+{
+  "keyFrames": [
+    {
+      "action": 0,
+      "type": 3,
+      "name": "duck",
+      "timestamp": 0,
+      "startpos": [ 0.0, 0.0, 0.0 ],
+      "endpos": [ 0.0, 0.0, 0.0 ],
+      "startrotation": [ 0, 0, 0 ],
+      "endrotation": [ 0, 0, 0 ],
+      "startscale": [ 0.1, 0.1, 0.1 ],
+      "endscale": [ 0.1, 0.1, 0.1 ],
+      "duration": 0,
+      "content": "",
+      "loop": 0
+
+    },
+
+    {
+      "action": 2,
+      "type": 3,
+      "name": "duck",
+      "timestamp": 0,
+      "startpos": [ 0.0, 0.0, 0.0 ],
+      "endpos": [ 1, 1, 1 ],
+      "startrotation": [ 0, 0, 0 ],
+      "endrotation": [ 0, 0, 0 ],
+      "startscale": [ 0.1, 0.1, 0.1 ],
+      "endscale": [ 0.1, 0.1, 0.1 ],
+      "duration": 1,
+      "content": "jump",
+      "loop": 0
+
+    },
+
+    {
+      "action": 2,
+      "type": 3,
+      "name": "duck",
+      "timestamp": 1,
+      "startpos": [ 1, 1, 1 ],
+      "endpos": [ 3, 2.5, 3 ],
+      "startrotation": [ 0, 0, 0 ],
+      "endrotation": [ 0, 0, 0 ],
+      "startscale": [ 0.1, 0.1, 0.1 ],
+      "endscale": [ 0.1, 0.1, 0.1 ],
+      "duration": 1,
+      "content": "jump",
+      "loop": 2
+
+    },
+    {
+      "action": 2,
+      "type": 3,
+      "name": "duck",
+      "timestamp": 2,
+      "startpos": [ 3, 2.5,3 ],
+      "endpos": [ 5.5, 4.5, 7 ],
+      "startrotation": [ 0, 0, 0 ],
+      "endrotation": [ 0, 0, 0 ],
+      "startscale": [ 0.1, 0.1, 0.1 ],
+      "endscale": [ 0.1, 0.1, 0.1 ],
+      "duration": 1,
+      "content": "jump",
+      "loop": 2
+
+    },
+    {
+      "action": 2,
+      "type": 3,
+      "name": "duck",
+      "timestamp": 3,
+      "startpos": [ 5.5, 4.5, 7 ],
+      "endpos": [ 3, 4, 4.5 ],
+      "startrotation": [ 0, 0, 0 ],
+      "endrotation": [ 0, 0, 0 ],
+      "startscale": [ 0.1, 0.1, 0.1 ],
+      "endscale": [ 0.1, 0.1, 0.1 ],
+      "duration": 2,
+      "content": "jump",
+      "loop": 2
+
+    },
+    {
+      "action": 2,
+      "type": 3,
+      "name": "duck",
+      "timestamp": 4,
+      "startpos": [ 3, 4, 4.5 ],
+      "endpos": [ 3, 4, 4.5 ],
+      "startrotation": [ 0, 0, 0 ],
+      "endrotation": [ 0, 0, 0 ],
+      "startscale": [ 0.1, 0.1, 0.1 ],
+      "endscale": [ 0.1, 0.1, 0.1 ],
+      "duration": 2,
+      "content": "stun",
+      "loop": 2
+
+    }
+
+  ]
+}
