@@ -11,7 +11,8 @@ using MongoDB.Bson;
 public class ActorRes
 {
     //public string PackageName;//包名
-    public string CharacterName;//包内的角色名
+    public string CharacterName;//角色名
+    public GameObject prefab;//角色的预制体
     
     public GameObject mSkeleton;//人物骨骼对象rgv
 
@@ -79,8 +80,8 @@ public class ResManager : MonoBehaviour
     IMongoDatabase database;
     string DbUrl = "mongodb://user1:123456@localhost:27017/AnimationSource";
 
-    public GameObject inputgo;//从数据库中查找到的预制体
-    public Actor_info actorinfo;//从数据库中查找到的文档实体
+   // public GameObject inputgo;//从数据库中查找到的预制体
+   // public Actor_info actorinfo;//从数据库中查找到的文档实体
 
     #endregion
 
@@ -103,8 +104,8 @@ public class ResManager : MonoBehaviour
     /// <param name="name"></param>
     void getActorInfoByName(string name)
     {
-        
 
+        Actor_info actorinfo = null;
         //保存该角色的资源类
         ActorRes res = new ActorRes();
         //获取collection
@@ -120,8 +121,8 @@ public class ResManager : MonoBehaviour
         }
         actorinfo = actorList[0];
         //根据路径，导入gameobject
-        inputgo = Resources.Load<GameObject>(actorinfo.Url);
-
+        res.prefab = Resources.Load<GameObject>(actorinfo.Url);
+        
         //查找动画资源并存储
         foreach(ObjectId animId in actorinfo.Animation)
         {
@@ -144,8 +145,10 @@ public class ResManager : MonoBehaviour
     /// <summary>
     /// 组装动画
     /// </summary>
-    void AssembleAnimation()
+    void AssembleAnimation(string name)
     {
+        GameObject inputgo = findActorResByName(name).prefab;
+       
         if (inputgo == null)
         {
             Debug.Log("组装动画前要找到gameobject");
@@ -219,8 +222,9 @@ public class ResManager : MonoBehaviour
         
         getActorInfoByName(name);//从数据库获取角色信息
 
-        AssembleAnimation();//组装动画
+        AssembleAnimation(name);//组装动画
 
+        mActorRes = findActorResByName(name);
         if (suitable)
         {
             //inputGo = new GameObject();
@@ -232,9 +236,9 @@ public class ResManager : MonoBehaviour
             //mCharacter = inputgo.AddComponent<Character>();//在Character对象上添加脚本组件
             mCharacter.SetName(name);
 
-            mActorRes = mActorResList[mActorResIdx];
+           
             //生成各个部位的预制体
-            mCharacter.Generate(mActorRes,inputgo,startPosition,startRotation);//根据索引值生成各个部位
+            mCharacter.Generate(mActorRes,startPosition,startRotation);//根据索引值生成各个部位
             
         }
         //GameObject go = new GameObject();//生成对象Character
@@ -244,7 +248,7 @@ public class ResManager : MonoBehaviour
             //mCharacter = inputgo.AddComponent<Character>();
             //mCharacter = GameObject.Instantiate(this.mCharacter);
             //mCharacter = new Character();
-            mCharacter.Generate(inputgo, startPosition, startRotation);
+            mCharacter.Generate(mActorRes.prefab, startPosition, startRotation);
             
         }
         return mCharacter.getGameObject();//返回实例化后的游戏物体Character.genGo
@@ -273,7 +277,7 @@ public class ResManager : MonoBehaviour
         //切换某部位的服装index
         ActorRes.partIndexDic[partIndex] = assetIndex;
         mActorResList[characterIndex] = ActorRes;
-        mCharacter.Generate(mActorResList[characterIndex],inputgo,mCharacter.position,mCharacter.rotation);
+        mCharacter.Generate(mActorResList[characterIndex],mCharacter.position,mCharacter.rotation);
 
     }
 
@@ -288,7 +292,7 @@ public class ResManager : MonoBehaviour
         }
         ActorRes.mAnimIdx = animIndex;
         mActorResList[characterIndex] = ActorRes;
-        mCharacter.Generate(mActorResList[characterIndex],inputgo,mCharacter.position,mCharacter.rotation);
+        mCharacter.Generate(mActorResList[characterIndex],mCharacter.position,mCharacter.rotation);
     }
 
     private void InitPartName()
@@ -373,7 +377,19 @@ public class ResManager : MonoBehaviour
         mgDbHelper = new MongoDbHelper(DbUrl);
         database = mgDbHelper.GetDb(DbUrl);
     }
-
+    private ActorRes findActorResByName(string name)
+    {
+        //GameObject inputgo = null;
+        foreach (ActorRes res in mActorResList)
+        {
+            if (res.CharacterName == name)
+            {
+                return res;
+            }
+        }
+        Debug.Log("没有找到该角色名对应的资源");
+        return null;
+    }
     #endregion
 
     #region 内置函数

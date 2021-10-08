@@ -60,7 +60,7 @@ public class Character : MonoBehaviour
     /// <summary>
     /// unCombine方式生成角色
     /// </summary>
-    public void Generate(ActorRes ActorRes, GameObject inputgo, Vector3 startPosition, Quaternion startRotation)
+    public void Generate(ActorRes actorRes, Vector3 startPosition, Quaternion startRotation)
     {
         DestroyAll();
         partGoDic.Clear();
@@ -70,10 +70,10 @@ public class Character : MonoBehaviour
             partGoDic.Add(code, go);
         }
 
-        this.genGo = Instantiate(inputgo, startPosition, startRotation);
-        mSkeleton = GameObject.Instantiate(ActorRes.mSkeleton);
+        this.genGo = Instantiate(actorRes.prefab, startPosition, startRotation);
+        mSkeleton = GameObject.Instantiate(actorRes.mSkeleton);
         mSkeleton.Reset(this.genGo);
-        mSkeleton.name = ActorRes.mSkeleton.name;
+        mSkeleton.name = actorRes.mSkeleton.name;
 
         mAnim = mSkeleton.GetComponent<Animation>();
 
@@ -81,12 +81,12 @@ public class Character : MonoBehaviour
         {
             if (code != (int)EPart.EP_All)
             {
-                ChangeEquip(code, ActorRes);
+                ChangeEquip(code, actorRes);
             }
             
         }
        
-        ChangeAnim(ActorRes);
+        ChangeAnim(actorRes);
     }
 
     public void Generate(GameObject go, Vector3 startPosition, Quaternion startRotation)
