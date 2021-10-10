@@ -62,10 +62,7 @@ namespace AnimGenerator
         /// </summary>
         public int loop;
 
-        /// <summary>
-        /// 角色皮肤的索引号
-        /// </summary>
-        public int suit;
+      
 
         public KeyFrame(int action, int type, string name, float timestamp,
             List<float> startpos, List<float> endpos,

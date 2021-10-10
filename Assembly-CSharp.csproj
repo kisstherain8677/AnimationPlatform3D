@@ -64,11 +64,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\AnimalPerformer.cs" />
     <Compile Include="Assets\Scripts\Character.cs" />
+    <Compile Include="Assets\Scripts\HumanPerformer.cs" />
     <Compile Include="Assets\Scripts\Interpreter.cs" />
     <Compile Include="Assets\Scripts\KeyFrame.cs" />
     <Compile Include="Assets\Scripts\MongoHelper.cs" />
     <Compile Include="Assets\Scripts\MongoTest.cs" />
+    <Compile Include="Assets\Scripts\Performer.cs" />
     <Compile Include="Assets\Scripts\ResManager.cs" />
     <Compile Include="Assets\Scripts\Util\FunctionUtil.cs" />
     <Compile Include="Assets\Scripts\Util\LerpUtility.cs" />

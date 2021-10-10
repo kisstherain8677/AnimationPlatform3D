@@ -62,8 +62,8 @@ namespace AnimGenerator
 
         ResManager resManager;
 
-        [Header("输入要实例化的角色名以测试")]
-        public string ActorName;
+        //[Header("输入要实例化的角色名以测试")]
+        private string ActorName;
 
         [Header("预制的一系列角色")]
         public GameObject stuff;  // 静态道具
@@ -220,6 +220,7 @@ namespace AnimGenerator
                     Debug.LogError($"Unexpected gameobject type {frame.type} when instantiating at timestamp {frame.timestamp}");
                     break;
             }
+            ActorName = frame.name;
             //GameObject go = Instantiate(tobeinstantiate, frame.StartPosition, frame.StartRotation);
             GameObject go= resManager.InitCharacter(ActorName, frame.StartPosition, frame.StartRotation, suitable);
             
@@ -259,10 +260,12 @@ namespace AnimGenerator
                 return;
             }
             GameObject go = gos[frame.name];
-            Animation anim = go.GetComponent<Animation>();
-           
+
+            //Animation anim = go.GetComponent<Animation>();
+
             //anim.wrapMode = WrapMode.Loop;
-            anim.Play(frame.content);
+            //anim.Play(frame.content);
+            resManager.ChangeAnim(frame.name, frame.content);
             StartCoroutine(Animate(frame));
         }
 

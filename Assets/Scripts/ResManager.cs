@@ -12,9 +12,12 @@ public class ActorRes
 {
     //public string PackageName;//包名
     public string CharacterName;//角色名
+    public string ActorType;//类型
     public GameObject prefab;//角色的预制体
     
     public GameObject mSkeleton;//人物骨骼对象rgv
+    //public Character mCharacter;
+    public Performer mPerformer;
 
     //显示每个部位的索引,key为部位枚举变量的值，value为某个部位的素材索引号
     public Dictionary<int,int> partIndexDic=new Dictionary<int,int>();
@@ -23,7 +26,8 @@ public class ActorRes
     //如果key只有一个元素且为EP_All，说明该角色没有各个部位的素材，只有一个整体素材
     public Dictionary<int, List<GameObject>> assetListDic = new Dictionary<int, List<GameObject>>();
    
-    public int mAnimIdx = 0;//动画资源的索引
+    public int mAnimIdx = 0;//准备播放的动画索引
+    public string mAnimName = "";//准备播放的动画名字
     public List<AnimationClip> mAnimList = new List<AnimationClip>();//动画资源数组
 
     
@@ -74,7 +78,7 @@ public class ResManager : MonoBehaviour
     private ActorRes mActorRes = null;//当前的ActorRes
     private int mActorResIdx = 0;
 
-    private Character mCharacter = null;
+    //private Character mCharacter = null;
 
     MongoDbHelper mgDbHelper;
     IMongoDatabase database;
@@ -102,7 +106,7 @@ public class ResManager : MonoBehaviour
     /// 根据角色名，从数据库中获取该角色的信息，取出该角色的预制体
     /// </summary>
     /// <param name="name"></param>
-    void getActorInfoByName(string name)
+    void GetActorInfoByName(string name)
     {
 
         Actor_info actorinfo = null;
@@ -133,9 +137,9 @@ public class ResManager : MonoBehaviour
             res.mAnimList.Add(clip);
         }
         
-        
         //res.mAnimList = actorinfo.Animation;
         res.CharacterName = actorinfo.Name;
+        res.ActorType = actorinfo.Type;
 
         this.mActorResList.Add(res);
 
@@ -147,7 +151,8 @@ public class ResManager : MonoBehaviour
     /// </summary>
     void AssembleAnimation(string name)
     {
-        GameObject inputgo = findActorResByName(name).prefab;
+        ActorRes actorRes = findActorResByName(name);
+        GameObject inputgo = actorRes.prefab;
        
         if (inputgo == null)
         {
@@ -155,15 +160,7 @@ public class ResManager : MonoBehaviour
             return;
         }
         Animation ani;
-        //挂载Character脚本
-        if (inputgo.GetComponent<Character>() == null)
-        {
-            mCharacter = inputgo.AddComponent<Character>();
-        }
-        else
-        {
-            mCharacter = inputgo.GetComponent<Character>();
-        }
+       
         if (inputgo.GetComponent<Animation>() == null)
         {
             ani = inputgo.AddComponent<Animation>();
@@ -199,7 +196,33 @@ public class ResManager : MonoBehaviour
         {
             Debug.LogError("为该角色添加动画列表失败。");
         }
+        //findActorResByName(name).prefab = inputgo;
+    }
 
+    //根据不同类型，加载不同的performer类对象
+    void AddPerformer(string name)
+    {
+        ActorRes actorRes = findActorResByName(name);
+        try
+        {
+            if (actorRes.ActorType == "animal" || actorRes.ActorType=="else")
+            {
+                actorRes.mPerformer = actorRes.prefab.AddComponent<AnimalPerformer>();
+            }
+            else if (actorRes.ActorType == "human")
+            {
+                actorRes.mPerformer = actorRes.prefab.AddComponent<HumanPerformer>();
+            }
+            else
+            { 
+                Debug.Log("找不到这个类型");
+                return;
+            }
+        }
+        catch(Exception e)
+        {
+            Debug.Log(e.Message + "没有找到该名称对应的对象");
+        }
     }
 
     /// <summary>
@@ -219,10 +242,13 @@ public class ResManager : MonoBehaviour
             Debug.Log("未指定角色名字！");
             return null;
         }
-        
-        getActorInfoByName(name);//从数据库获取角色信息
+       
 
-        AssembleAnimation(name);//组装动画
+        GetActorInfoByName(name);//从数据库获取角色信息
+
+        AssembleAnimation(name);//加载该actor的动画到其ActorRes
+
+        AddPerformer(name);
 
         mActorRes = findActorResByName(name);
         if (suitable)
@@ -231,68 +257,86 @@ public class ResManager : MonoBehaviour
             //mCharacter = inputgo.AddComponent<Character>();
             //mCharacter = GameObject.Instantiate(this.mCharacter);
             //mCharacter = new Character();
-           
+
 
             //mCharacter = inputgo.AddComponent<Character>();//在Character对象上添加脚本组件
-            mCharacter.SetName(name);
+            mActorRes.mPerformer.setName(name);
 
-           
+
             //生成各个部位的预制体
-            mCharacter.Generate(mActorRes,startPosition,startRotation);//根据索引值生成各个部位
+            mActorRes.mPerformer.Generate(mActorRes,startPosition,startRotation);//根据索引值生成各个部位
             
         }
         //GameObject go = new GameObject();//生成对象Character
         else
         {
-            
+
             //mCharacter = inputgo.AddComponent<Character>();
             //mCharacter = GameObject.Instantiate(this.mCharacter);
             //mCharacter = new Character();
-            mCharacter.Generate(mActorRes.prefab, startPosition, startRotation);
+            mActorRes.mPerformer.Generate(mActorRes, startPosition, startRotation);
             
         }
-        return mCharacter.getGameObject();//返回实例化后的游戏物体Character.genGo
+        mActorRes.prefab= mActorRes.mPerformer.getGameObject();
+        return mActorRes.mPerformer.getGameObject();//返回实例化后的游戏物体Character.genGo
 
     }
 
     public void ChangeClothes(int characterIndex, int partIndex, int assetIndex)
     {
-        ActorRes ActorRes = mActorResList[characterIndex];
+        ActorRes actorRes = mActorResList[characterIndex];
         if (characterIndex > mActorResList.Count - 1)
         {
             Debug.Log("character index out of range!");
             return;
         }
-        if (partIndex > ActorRes.partIndexDic.Count - 1)
+        if (partIndex > actorRes.partIndexDic.Count - 1)
         {
             Debug.Log("part index out of range!");
             return;
         }
-        if (assetIndex > ActorRes.assetListDic[partIndex].Count - 1)
+        if (assetIndex > actorRes.assetListDic[partIndex].Count - 1)
         {
             Debug.Log("assetIndex index out of range!");
             return;
         }
 
         //切换某部位的服装index
-        ActorRes.partIndexDic[partIndex] = assetIndex;
-        mActorResList[characterIndex] = ActorRes;
-        mCharacter.Generate(mActorResList[characterIndex],mCharacter.position,mCharacter.rotation);
+        actorRes.partIndexDic[partIndex] = assetIndex;
+        mActorResList[characterIndex] = actorRes;
+        actorRes.mPerformer.Generate(mActorResList[characterIndex], actorRes.mPerformer.position, actorRes.mPerformer.rotation);
 
     }
 
     
     public void ChangeAnim(int characterIndex, int animIndex)
     {
-        ActorRes ActorRes = mActorResList[characterIndex];
-        if (animIndex > ActorRes.mAnimList.Count - 1)
+        ActorRes actorRes = mActorResList[characterIndex];
+        if (animIndex > actorRes.mAnimList.Count - 1)
         {
             Debug.Log("animIndex out of range");
             return;
         }
-        ActorRes.mAnimIdx = animIndex;
-        mActorResList[characterIndex] = ActorRes;
-        mCharacter.Generate(mActorResList[characterIndex],mCharacter.position,mCharacter.rotation);
+        actorRes.mAnimIdx = animIndex;
+        mActorResList[characterIndex] = actorRes;
+        actorRes. mPerformer.Generate(mActorResList[characterIndex], actorRes.mPerformer.position, actorRes.mPerformer.rotation);
+    }
+
+    //根据角色名和动画名字指定动画
+    public void ChangeAnim(string actorName,string animName)
+    {
+        ActorRes res = findActorResByName(actorName);
+        res.mAnimName = animName;
+        int index = 0;
+        foreach(AnimationClip clip in res.mAnimList)
+        {
+            if (clip.name == animName)
+            {
+                res.mAnimIdx = index;
+            }
+            index++;
+        }
+        res.mPerformer.ChangeAnim(res);
     }
 
     private void InitPartName()

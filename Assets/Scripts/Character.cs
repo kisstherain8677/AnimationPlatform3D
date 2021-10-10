@@ -92,6 +92,7 @@ public class Character : MonoBehaviour
     public void Generate(GameObject go, Vector3 startPosition, Quaternion startRotation)
     {
         DestroyAll();
+        //Initiate保留go的组件
         this.genGo = GameObject.Instantiate(go, startPosition, startRotation);
     }
 
